@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>ANIMATION LESSON</title>
+    <style>
+    	* { padding: 0; margin: 0; }
+    	canvas { background: #eee; display: block; margin: 0 auto; }
+    </style>
+</head>
+<body>
+
+<canvas id="myCanvas" width="1000" height="570"></canvas>
+
+<script>
+	// JavaScript code goes here
+	function $(id){
+		return document.getElementById(id);
+	}
+	
+	//MAKE A REFERENCE FOR YOUR CANVAS
+	var canvas = $("myCanvas");
+	var ctx = canvas.getContext("2d");
+		
+	//DID THE PLAYER PUSH A BUTTON?
+	var rightPressed = false; //START OFF AS FALSE BECAUSE NEITHER BUTTON HAS BEEN PUSHED
+	var leftPressed = false;
+	var upPressed = false;
+	
+	//TELL THE COMPUTER TO LISTEN TO THE PLAYER WHEN THE PUSH A BUTTON
+	document.addEventListener("keydown", keyDown, false);
+	document.addEventListener("keyup", keyUp, false);
+	
+	//MAKE THE KEYDOWN FUNCTION
+	function keyDown(e){
+		//IF WE PUSH THE RIGHT BUTTON SET RIGHTPRESSED TO TRUE
+		if (e.key == "Right" || e.key == "ArrowRight"){
+			rightPressed = true;
+			
+		}
+		//IF WE PUSH THE LEFT BUTTON SET LEFTPRESSED TO TRUE
+		else if (e.key == "Left" || e.key == "ArrowLeft"){
+			leftPressed = true;
+		}
+		else if (e.key == "Up" || e.key == "ArrowUp"){
+			upPressed = true;
+		}
+	}
+
+	//MAKE THE KEYUP FUNCTION
+	function keyUp(e){
+		//IF WE PUSHED THE RIGHT BUTTON SET LEFTPRESSED TO FALSE
+		if (e.key == "Right" || e.key == "ArrowRight"){
+			rightPressed = false;
+		}
+		//IF WE PUSHED THE LEFT BUTTON SET LEFTPRESSED TO FALSE
+		else if (e.key == "Left" || e.key == "ArrowLeft"){
+			leftPressed = false;
+		}
+		else if (e.key == "Up" || e.key == "ArrowUp"){
+			upPressed = false;
+		}
+	}
+	
+
+	//MAKE A SPRITE CLASS
+	function Sprite(img, height, width, x, y, scaledHeight, scaledWidth, idlecycle, frameY, player){
+		
+		this.img = img;
+		this.height = height;
+		this.width = width;
+		this.x = x;
+		this.y = y;
+		this.scaledHeight = scaledHeight;
+		this.scaledWidth = scaledWidth;
+		this.idlecycle = idlecycle;
+		this.frameY = frameY;
+		this.player = player
+		
+		this.spritesheet = new Image();
+		this.cycle = this.idlecycle;
+		this.spritesheet.src = this.img;
+		this.spritesheet.onload = function(){
+		
+		};
+
+		this.currentIndex = 0;
+		this.animate = function(){
+
+				if (rightPressed || leftPressed){
+						
+						if(this.player == "player" && rightPressed){
+							this.cycle = [0,1,2,1];
+							this.frameY = 1;
+							this.movePlayer();
+						}
+						else if(this.player == "player" && leftPressed){
+							this.cycle = [3,4,5,4];
+							this.frameY = 1;
+							this.movePlayer();
+						}
+						else if(this.player != "player"){
+								this.cycle = this.idlecycle;														
+						}
+
+					}
+					
+				else if((!rightPressed || !leftPressed)){
+						
+						if(this.player == "player"){
+							this.cycle = this.idlecycle;
+							this.frameY = 0;
+						}
+						else if (this.player != "player"){
+							
+							if(this.player == "building"){
+							
+								this.cycle = [this.currentIndex];
+								this.frameY = 4.2;
+							}
+							else if(this.player == "coin"  || this.player == "back")
+							{
+								this.cycle = this.idlecycle;
+							}
+							
+						}											
+					}
+					
+					this.currentIndex++;
+					
+					if (this.currentIndex == this.cycle.length) {
+						this.currentIndex = 0;
+					}
+					this.drawFrame(this.cycle[this.currentIndex], this.frameY, this.x, this.y);					
+				}
+				
+				//MAKE A FUNCTION TO DRAW A SINGLE FRAME OF OUR SPREAD SHEET			
+				this.drawFrame = function (pframeX, pframeY, pcanvasX, pcanvasY) {
+					//USE THE CAVNAS CONTEXT TO  DRAW OUR PICTURE
+					//PICUTRE REFERENCE
+					//X POSITION OF THE FRAME
+					//Y POSITION OF THE FRAME
+					//WIDTH
+					//HEIGHT
+					//X POSITION OF WHERE IT WILL BE ON THE CANVAS
+					//Y POSITION OF WHERE IT WILL BE ON THE CANVAS
+					//HOW WIDE WE ACTUALLY WANT IT
+					//HOW TALL WE ACTUALLY WANT IT
+					ctx.drawImage(this.spritesheet,
+						pframeX * this.width, pframeY * this.height, this.width, this.height,
+						pcanvasX, pcanvasY, this.scaledWidth, this.scaledHeight);
+						
+				}
+				this.movePlayer = function(){
+					if(rightPressed){
+						this.x += 10;
+					}
+					if(leftPressed){
+						this.x -= 10;
+					}
+					if(upPressed){
+						this.y -= 10;
+					}
+
+				}
+					
+				
+	}
+	Sprite.prototype.update = function(){
+
+		this.animate();
+		
+	};
+	
+	var animationID;
+	
+	var sprites = [];
+		
+	var frameCount = 0;
+	var scale = 5;
+
+	var x= 0;
+	var y= 400;
+	var height = 32;
+	var width = 32;
+	var speed = 2;
+	var scaledHeight = height * scale;
+	var scaledWidth = width * scale;
+	
+	var bScale = 7;
+	var bheight = 81;
+	var bwidth = 32;
+	var backY = 0;
+	var backX = 0;
+	var bscaledHeight = bheight * bScale;
+	var bscaledWidth = bwidth * 32;
+	var bY= 1;
+
+	var fScale = 5;
+	var foreX = 0;
+	var foreY = 291;
+	var foreH = 50;
+	var foreW = 32;
+	var fscaledH =  foreH * fScale;
+	var fscaledW = foreW * 32;
+	
+		var background = new Sprite('spritesheet2.png', bheight, bwidth, backX, backY, bscaledHeight, bscaledWidth, [0,1,2,3,4,5,6,7,8], bY, "back");		
+		sprites.push(background);
+		
+		/*var foreground = new Sprite('spritesheet2.png', foreH, foreW, foreX, foreY, fscaledH, fscaledW, [0,1,2,3,4,5,6,7,8], 4.2, "building");
+		sprites.push(foreground);*/
+
+		var player = new Sprite('spritesheet2.png', height, width, x, y, scaledHeight, scaledWidth, [2,0,1,0], 0, "player");
+		sprites.push(player);
+
+	//MAKE AN ARRAY FOR OUR COINS
+	var coins = [];
+	
+	var coinCount = 3;
+
+	for(var i = 0; i < coinCount; i++){
+		//PROPERTIES FOR COINS
+		var cx = Math.random() * 600;
+		var cy = 410;
+		var coinHeight = 25;
+		var coinWidth = 25;
+		var scaledCoinHeight = 5 * coinHeight;
+		var scaledCoinWidth = 5 * coinWidth;
+		var coin = new Sprite('spritesheet2.png', coinHeight, coinWidth, cx, cy, scaledCoinHeight, scaledCoinWidth, [0,1], 7, "coin");
+		
+		sprites.push(coin);
+	}
+	
+	
+	//MAKE A FUNCTION TO DRAW All OF OUR SHAPES
+	function draw(){
+			
+		frameCount++;
+		
+		if(frameCount < 10){		
+					
+			
+			if(rightPressed || leftPressed)
+			{
+				currentIndex = 0;
+				window.cancelAnimationFrame(animationID);
+			}
+			
+			animationID = window.requestAnimationFrame(draw);
+			return;
+		}
+		
+		frameCount = 0;
+		
+		
+		//WE NEED TO CLEAR THE CANVAS EVERY TIME TO GIVE THE ILLUSION OF ANIMATION
+		//DO IT AFTER ELSE IT'LL CAUSE A FLICKER EFFECT
+		ctx.clearRect(0, 0, canvas.width, canvas.height);			
+
+		for (var i = 0; i < sprites.length; i++) {
+			var sprite = sprites[i];
+			sprite.update();
+		}		
+		
+		animationID = window.requestAnimationFrame(draw);
+	}
+	
+	draw();
+	
+	
+</script>
+
+</body>
+</html>
