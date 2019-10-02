@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+	<html>
+		<head>
+			<meta charset="UTF-8">
+			<title> MY FIRST CANVAS </title>
+		</head>
+		
+		<body>
+			
+			<canvas id="myCanvas" width="800" height="320"></canvas>
+			
+			<style> canvas{ border: 1px solid black;} </style>
+			
+			<script>
+				function $(id){
+					return document.getElementById(id);
+				}	
+				
+				//MAKE CONSTANT VARIABLES
+				//CONSTANT VARIABLES ARE VALUES 
+				//THAT ARE NOT GOING TO CHANGE
+				const scale = 5;
+				const width = 32;
+				const height = 32;
+				const scaledWidth = scale * width;
+				const scaledHeight = scale * height;
+				
+				//MAKE OUR REFERENCE TO THE CANVAS WE MADE IN HTML
+				var canvas = $('myCanvas');
+				
+				//MAKE A REFERENCE FOR THE CONTEXT OF THE CANVAS
+				//THE CONTEXT IS WHAT ALLOWS US TO DRAW ON THE CANVAS
+				var context = canvas.getContext('2d');
+				
+				//MAKE A REFERENCE FOR THE SPRITE SHEET WE ARE GOING TO USE
+				var img = new Image();
+				//SRC MEANS SOURCE - THE NAME OF THE PICTURE WE WANT TO USE
+				img.src = 'spritesheet2.png';
+				//ONLOAD - WHENEVER THE PICTURE IS LOADED AND THE COMPUTER 
+				//CAN USE IT, WE ARE GOING TO DO SOMETHING
+				img.onload = function(){
+					drawFrame(0,0,0,0);
+				};
+				
+				//MAKE A FUNCTION TO DRAW A SINGLE FRAME OF OUR SPREAD SHEET
+				function drawFrame(frameX, frameY, canvasX, canvasY) {
+					//USE THE CAVNAS CONTEXT TO  DRAW OUR PICTURE
+					//PICUTRE REFERENCE
+					//X POSITION OF THE FRAME
+					//Y POSITION OF THE FRAME
+					//WIDTH
+					//HEIGHT
+					//X POSITION OF WHERE IT WILL BE ON THE CANVAS
+					//Y POSITION OF WHERE IT WILL BE ON THE CANVAS
+					//HOW WIDE WE ACTUALLY WANT IT
+					//HOW TALL WE ACTUALLY WANT IT
+					context.drawImage(img,
+						frameX * width, frameY * height, width, height,
+						canvasX, canvasY, scaledWidth, scaledHeight);	
+				}
+			</script>
+		</body>
+	</html>
