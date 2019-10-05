@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Gamedev Canvas Workshop</title>
+    <style>
+    	* { padding: 0; margin: 0; }
+    	canvas { background: #eee; display: block; margin: 0 auto; }
+    </style>
+</head>
+<body>
+
+<canvas id="myCanvas" width="480" height="320"></canvas>
+
+<script>
+	// JavaScript code goes here
+	function $(id){
+		return document.getElementById(id);
+	}
+	
+	//MAKE A REFERENCE FOR YOUR CANVAS
+	var canvas = $("myCanvas");
+	var ctx = canvas.getContext("2d");
+
+	//GET THE X AND Y COORDINATES OF THE CANVAS
+	var x = canvas.width/2; //BOTH OF THESE GET THE POINT
+	var y = canvas.height/2;//IN THE MIDDLE OF THE CANVAS
+	
+	//MAKE THE DIRECTION THAT THE BALL IS GOING TO MOVE
+	var dx = 2; //THIS MAKES THE BALL WILL TO THE RIGHT
+	var dy = -2;//THIS MAKES THE BALL WILL MOVE UP
+	
+	//HOW BIG IS THE BALL GOING TO BE?
+	var ballRadius = 10;
+	
+	//MAKE THE PROPERTIES FOR YOUR PADDLE
+	var paddleHeight = 10;
+	var paddleWidth = 75;
+	var paddleX = (canvas.width-paddleWidth) / 2;
+	var pDX = 7; //MOVES THE PADDLE RIGHT OR LEFT 
+	
+	//DID THE PLAYER PUSH A BUTTON?
+	var rightPressed = false; //START OFF AS FALSE BECAUSE NEITHER BUTTON HAS BEEN PUSHED
+	var leftPressed = false;
+	
+	//TELL THE COMPUTER TO LISTEN TO THE PLAYER WHEN THE PUSH A BUTTON
+	document.addEventListener("keydown", keyDown, false);
+	document.addEventListener("keyup", keyUp, false);
+	
+	//MAKE THE KEYDOWN FUNCTION
+	function keyDown(e){
+		//IF WE PUSH THE RIGHT BUTTON SET RIGHTPRESSED TO TRUE
+		if (e.key == "Right" || e.key == "ArrowRight"){
+			rightPressed = true;
+		}
+		//IF WE PUSH THE LEFT BUTTON SET LEFTPRESSED TO TRUE
+		else if (e.key == "Left" || e.key == "ArrowLeft"){
+			leftPressed = true;
+		}
+	}
+
+	//MAKE THE KEYUP FUNCTION
+	function keyUp(e){
+		//IF WE PUSHED THE RIGHT BUTTON SET LEFTPRESSED TO FALSE
+		if (e.key == "Right" || e.key == "ArrowRight"){
+			rightPressed = false;
+		}
+		//IF WE PUSHED THE LEFT BUTTON SET LEFTPRESSED TO FALSE
+		else if (e.key == "Left" || e.key == "ArrowLeft"){
+			leftPressed = false;
+		}
+	}
+	
+	
+	//PROPERTIES FOR BRICKS
+	var brickRowCount = 3;
+	var brickColumnCount = 5;
+	var brickWidth = 75;
+	var brickHeight = 20;
+	var brickPadding = 10;
+	var brickOffsetTop = 30;
+	var brickOffsetLeft = 30;
+
+
+	//MAKE A 2D ARRAY FOR OUR BRICKS
+	var bricks = [];
+	//FILL OUR ARRAY USING A NESTED FOR LOOP
+	for(var c = 0; c < brickColumnCount; c++){
+		bricks[c] = [];
+		for(var r = 0; r < brickRowCount; r++){
+			bricks[c][r] = {x: 0, y: 0, status: 1};
+		}
+	}
+	
+	//MAKE A FUNCTION TO DRAW OUR BRICKS
+	function drawBricks(){
+		//LOOP THROUGH OUR ARRAY TO ACCESS EACH BRICK
+		for(var c = 0; c < brickColumnCount; c++){
+			for(var r = 0; r < brickRowCount; r++){
+				if(bricks[c][r].status == 1){
+					//MAKE X AND Y POSITIONS FOR OUR RECTANGLES TO BE PLACED AT
+					var brickX = (c*(brickWidth+brickPadding))+brickOffsetLeft;
+					var brickY = (r*(brickHeight+brickPadding))+brickOffsetTop;
+				
+					bricks[c][r].x = brickX;
+					bricks[c][r].y = brickY;
+					//DRAW RECTANGLES TO REPRESENT OUR BRICKS
+					ctx.beginPath();
+					ctx.rect(brickX, brickY,brickWidth, brickHeight);
+					ctx.fillStyle = "blue";
+					ctx.fill();
+					ctx.closePath();
+				}
+
+			}
+		}	
+	}
+	
+	
+	//MAKE A VARIABLE TO COUNT THE SCORE
+	var scoreCounter = 0;
+	
+	//MAKE A FUNCTION TO DRAW All OF OUR SHAPES
+	function draw(){
+		//WE NEED TO CLEAR THE CANVAS EVERY TIME TO GIVE THE ILLUSION OF ANIMATION
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		
+		drawBricks();
+		
+		//DRAW A CIRCLE
+		ctx.beginPath();
+		ctx.arc(x, y, ballRadius, 0, Math.PI*2, false);
+		ctx.fillStyle = "green";
+		ctx.fill();
+		ctx.closePath();
+		
+		drawPaddle();
+		brickHit();
+		movePaddle();
+		drawScore();
+		hit();
+		
+		x += dx;
+		y += dy;
+
+		//MOVE TO THE RIGHT
+		if(rightPressed && paddleX < canvas.width - paddleWidth){
+			paddleX += 7;
+		}
+		//MOVE TO THE LEFT
+		else if(leftPressed && paddleX > 0){
+			paddleX -= 7;
+		}
+		requestAnimationFrame(draw);
+	}
+	
+	//MAKE A PADDLE
+	function drawPaddle(){
+		ctx.beginPath();
+		ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);//x, y, width, height
+		ctx.fillStyle = "red";
+		ctx.fill();
+		ctx.closePath();
+
+	}
+	//MOVE THE PADDLE BUT DON'T LET IT GO OFF THE SCREEN
+	function movePaddle(){
+		//DID THE BALL HIT THE RIGHT OF THE BOARD
+		if(x + dx < 0){
+			dx = -dx;
+		}
+		//DID THE BALL HIT THE LEFT OF THE BOARD
+		if(x + dx > canvas.width){
+			dx = -dx;
+		}
+	}
+	//DID THE BALL HIT ANYTHING?
+	function hit(){
+		//DID THE BALL HIT THE TOP OF THE BOARD
+		if(y + dy < 0){
+			dy = -dy;
+		}
+		//DID THE BALL HIT THE BOTTOM OF THE BOARD
+		if(y + dy > canvas.height + ballRadius){
+			dy = -dy;
+		}
+		else if(y + dy > canvas.height-ballRadius) {
+			//DID THE BALL HIT THE PADDLE
+			if(x > paddleX && x < paddleX + paddleWidth) {
+				dy = -dy;
+			}else{
+				alert("GAME OVER");
+				document.location.reload();
+			}
+		}	
+	}
+	//MAKE A FUNCTION TO SEE IF THE BRICKS GOT HIT
+	function brickHit(){
+		//LOOP THROUGH OUR ARRAY TO ACCESS EACH BRICK
+		for(var c = 0; c < brickColumnCount; c++){
+			for(var r = 0; r < brickRowCount; r++){
+				//MAKE A VARIABLE TO REPRESENT THE BRICKS
+				var b = bricks[c][r];
+				
+				//CHECK IF THE BRICK IS DRAWN
+				//IF IT IS, THEN SEE IF THE BALL IS IN THE MIDDLE OF A BRICK, 
+				//IF IT IS CHANGE ITS DIRECTION
+				if(b.status == 1){
+					if(x > b.x && x < b.x + brickWidth && y > b.y && y < b.y + brickHeight){
+						dy = -dy;
+						//CHANGE STATUS OF B TO 0
+						b.status = 0;
+						
+						//ADD SCORE
+						scoreCounter++;
+					}
+				}
+				
+			}
+		}
+	}
+	//MAKE A FUNCTION TO DISPLAY THE SCORE
+	function drawScore() {
+		ctx.font = "16px Arial";
+		ctx.fillStyle = "#0095DD";
+		ctx.fillText("Score: "+scoreCounter, 8, 20);
+	}
+	
+	draw();
+	
+</script>
+
+</body>
+</html>
