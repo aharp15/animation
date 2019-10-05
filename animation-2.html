@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+	<html>
+		<head>
+			<meta charset="UTF-8">
+			<title> MY FIRST CANVAS </title>
+		</head>
+		
+		<body>
+			
+			<canvas id="myCanvas" width="800" height="320"></canvas>
+			
+			<style> canvas{ border: 1px solid black;} </style>
+			
+			<script>
+				function $(id){
+					return document.getElementById(id);
+				}	
+				
+				//MAKE OUR REFERENCE TO THE CANVAS WE MADE IN HTML
+				var canvas = $('myCanvas');
+				
+				//MAKE A REFERENCE FOR THE CONTEXT OF THE CANVAS
+				//THE CONTEXT IS WHAT ALLOWS US TO DRAW ON THE CANVAS
+				var context = canvas.getContext('2d');
+			</script>
+		</body>
+	</html>
