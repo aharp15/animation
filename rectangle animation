@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Parcel Sandbox</title>
+    <meta charset="UTF-8" />
+  </head>
+
+  <body>
+    <p id="coord"></p>
+    <!--1st step Create canvas-->
+    <canvas id="MyCanvas" height="800" width="600"></canvas>
+
+    <!--2nd give it some style-->
+    <style>
+      #MyCanvas {
+        background-color: gray;
+      }
+    </style>
+
+    <!--3rd make it do something-->
+    <script>
+      //Make variables for canvas and context
+      var canvas = document.getElementById("MyCanvas");
+      var context = canvas.getContext("2d");
+
+      canvas.addEventListener("mousemove", function (e) {
+        //Set up variables to capture X and Y coordinates
+        var x = e.clientX - 8;
+        var y = e.clientY - 50;
+
+        document.getElementById("coord").innerHTML = "X: " + x + "Y: " + y;
+      });
+      //Create a variable to track frames
+      var frameCount = 0;
+      var w = 300;
+      var h = 100;
+      var x = 100;
+      var y = 100;
+      var speed = 2;
+
+      //This is called recursion
+      //-A function that calls itself
+      function draw() {
+        x += speed;
+        y += speed;
+        //Create random number
+        var rnd = Math.floor(Math.random() * 3);
+
+        frameCount++;
+
+        if (frameCount < 2) {
+          //If rnd is 0 make it blue
+          //If its 1 make red
+
+          window.requestAnimationFrame(draw);
+          return;
+        }
+
+        if (rnd == 0) {
+          context.fillStyle = "blue";
+        } else if (rnd == 1) {
+          context.fillStyle = "red";
+        } else {
+          context.fillStyle = "green";
+        }
+        if (
+          x <= 0 ||
+          x + w >= canvas.width ||
+          y <= 0 ||
+          y + h >= canvas.height
+        ) {
+          speed = -speed;
+        }
+
+        frameCount = 0;
+
+        //context.clearRect(0, 0, canvas.width, canvas.height);
+
+        //Use context to make shape
+        //context.arc(x, y, h, 0, 2 * Math.PI);
+
+        //context.stroke();
+
+        context.fillRect(x, y, w, h);
+        window.requestAnimationFrame(draw);
+      }
+
+      draw();
+    </script>
+  </body>
+</html>
